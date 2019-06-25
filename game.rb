@@ -27,7 +27,7 @@ class Game
                 setup = true
                 mode = :medium
             elsif settings.downcase == "h"
-                @board = Board.new(Array.new(20){ Array.new(20) { Space.new }})
+                @board = Board.new(Array.new(15){ Array.new(15) { Space.new }})
                 @board.setup_board(20)
                 setup = true
                 mode = :hard

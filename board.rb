@@ -38,14 +38,25 @@ class Board
     end
 
     def render
-        output_row = ""
+        output_row = "  "
         row_dashes = ""
+        x_cords = " "
+        i = 0
+        while i < @board.length
+            output_row += "  #{i} "
+            i+=1
+        end
+        puts x_cords
+        puts output_row
         @board.each_with_index do |row,idx1|
-            output_row = "|"
-            row_dashes = "-"
+            output_row = "#{idx1} |" 
+            row_dashes = "  -"
             row.each do |space,idx2|
-                output_row+=" #{space.display} |" unless game_over? == true
-                output_row+=" #{space.display_end} |" if game_over? == true
+                if game_over?
+                    output_row+=" #{space.display_end} |"
+                else
+                    output_row+=" #{space.display} |"
+                end
                 row_dashes+="----"
             end
             puts row_dashes if idx1 == 0
@@ -134,7 +145,7 @@ class Board
     def end_game
         @board.each do |row|
             row.each do |space|
-                space.toggle_show
+                space.toggle_show if space.is_bomb?
             end
         end
     end
