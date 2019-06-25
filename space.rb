@@ -24,6 +24,11 @@ class Space
         return @value
     end
 
+    def display_end
+        return "X" if @flag == true and @value != :bomb
+        return display
+    end
+
     def toggle_flag
         @flag = !@flag
     end

@@ -1,12 +1,13 @@
 require './space'
 
 class Board
-    attr_reader :board, :bombs, :flag_count
+    attr_reader :board, :bombs, :flag_count, :bomb_click
 
     def initialize(board = Array.new(5){ Array.new(5) { Space.new }})
         @board = board
         @bombs = {}
         @flag_count = 0
+        @bomb_click = false
     end
 
     def setup_board(bombs=5)
@@ -43,7 +44,8 @@ class Board
             output_row = "|"
             row_dashes = "-"
             row.each do |space,idx2|
-                output_row+=" #{space.display} |" 
+                output_row+=" #{space.display} |" unless game_over? == true
+                output_row+=" #{space.display_end} |" if game_over? == true
                 row_dashes+="----"
             end
             puts row_dashes if idx1 == 0
@@ -75,7 +77,13 @@ class Board
 
     def click(x,y)
         spot = @board[x][y]
-        spot.toggle_show unless spot.flag
+        @bomb_click = true if spot.is_bomb? 
+        reveal(x,y) unless spot.flag
+        # spot.toggle_show unless spot.flag
+    end
+
+    def game_over?
+        winner? or @bomb_click
     end
 
     def winner?
@@ -83,7 +91,6 @@ class Board
             return false unless v == 0
         end
         if @bombs.keys.length == @flag_count
-            puts "WINNER!!!!"
             end_game
             render
             return true 
@@ -134,11 +141,11 @@ class Board
 
     def reveal(x,y)
         neighbors = []
-        space = @board[x][y]
-        if x<0 or y < 0 or x>= @board.length or y>= @board[0].length
+        if (x < 0 or y < 0) or (x>= @board.length or y>= @board[0].length)
             return
         end
-        return if space.show
+        space = @board[x][y]
+        return if space.show or space.flag
         if space.is_bomb?
             return :bomb
         end
@@ -146,20 +153,19 @@ class Board
         if space.value > 0
             return space.value
         else
-            neighbors << [[x-1],[y-1]]
-            neighbors << [[x-1],[y]]
-            neighbors << [[x-1],[y+1]]
-            neighbors << [[x],[y-1]]
-            neighbors << [[x+1],[y-1]]
-            neighbors << [[x],[y+1]]
-            neighbors << [[x+1],[y]]
-            neighbors << [[x+1],[y+1]]
+            neighbors << [x-1,y-1] if self[x-1,y-1]
+            neighbors << [x-1,y] if self[x-1,y]
+            neighbors << [x-1,y+1] if self[x-1,y+1]
+            neighbors << [x,y-1] if self[x,y-1]
+            neighbors << [x+1,y-1] if self[x+1,y-1]
+            neighbors << [x,y+1] if self[x,y+1]
+            neighbors << [x+1,y] if self[x+1,y]
+            neighbors << [x+1,y+1] if self[x+1,y+1]
 
             until neighbors.empty?
-                cord = reveal.pop
+                cord = neighbors.pop
                 reveal(cord[0],cord[1])
             end
         end
     end
-
 end
